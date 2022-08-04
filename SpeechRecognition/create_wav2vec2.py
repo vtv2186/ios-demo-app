@@ -4,6 +4,8 @@ from torch.utils.mobile_optimizer import optimize_for_mobile
 import torchaudio
 from torchaudio.models.wav2vec2.utils.import_huggingface import import_huggingface_model
 from transformers import Wav2Vec2ForCTC
+import speech_recognition as sr
+import io
 
 # Wav2vec2 model emits sequences of probability (logits) distributions over the characters
 # The following class adds steps to decode the transcript (best path)
@@ -41,8 +43,12 @@ class SpeechRecognizer(torch.nn.Module):
         return hypothesis.replace('|', ' ')
 
 
+r = sr.Recognizer()
+
 # Load Wav2Vec2 pretrained model from Hugging Face Hub
 model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h")
+
+#model = Wav2Vec2ForCTC.from_pretrained("theainerd/Wav2Vec2-large-xlsr-hindi")
 # Convert the model to torchaudio format, which supports TorchScript.
 model = import_huggingface_model(model)
 # Remove weight normalization which is not supported by quantization.
